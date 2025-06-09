@@ -10,7 +10,6 @@ from runtime.core.locking import lock_handle
 from runtime.core.user import is_elevated
 
 MAIN_MODULE = sys.modules["__main__"]
-MAIN_PKG_NAME = getattr(MAIN_MODULE, "__package__")
 SINGLE_INSTANCE_FILENAME = "singleinstance"
 IS_ELEVATED = is_elevated()
 
@@ -22,15 +21,16 @@ def get_main_module() -> ModuleType:
 def get_main_package() -> Distribution:
     """Returns the main module package.
     """
-    return distribution(MAIN_PKG_NAME)
+    return distribution(getattr(MAIN_MODULE, "__package__"))
 
 def get_auxilary_packages() -> dict[str, Distribution]:
     """Returns all installed packages (except for main package).
     """
+    mp = getattr(MAIN_MODULE, "__package__") or get_main_package().name
     return {
         dist.name: dist
         for dist in distributions()
-        if dist.name != MAIN_PKG_NAME
+        if dist.name != mp
     }
 
 def get_application_path() -> str:
@@ -70,15 +70,19 @@ def get_installalled_apps_path(elevated: bool = IS_ELEVATED) -> str: # pragma: n
     """Gets the default path for installed user applications."""
     if elevated:
         if sys.platform == "win32":
-            return path.abspath(
-                cast(str, getenv("ProgramFiles", None)
-                    or getenv("ProgramFiles(x86)")
-                    or getenv("ProgramW6432")))
-        else:
+            if result := (getenv("ProgramFiles") or
+                          getenv("ProgramFiles(x86)") or
+                          getenv("ProgramW6432")):
+
+                return path.abspath(result)
+        elif path.isdir("/usr/local/bin"):
             return "/usr/local/bin"
     else:
-        if sys.platform == "win32" and ( appdata := getenv("LocalAppData") ):
-            return path.join(path.abspath(appdata), "Programs")
-        else:
+        if sys.platform == "win32":
+            if result := getenv("LocalAppData"):
+                return path.abspath(path.join(result, "Programs"))
+        elif path.isdir("~/.local"):
             return "~/.local"
+
+    raise FileNotFoundError
 

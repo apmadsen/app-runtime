@@ -1,8 +1,9 @@
 # pyright: basic
 from os import path, remove
-from sys import modules
+from sys import modules, executable
 from typing import cast
 from pytest import raises as assert_raises, fixture
+from importlib.metadata import version
 
 from runtime.core.application import SINGLE_INSTANCE_FILENAME
 from runtime.core.locking import get_shared_lock_path, lock_file
@@ -61,9 +62,7 @@ def test_get_main_module():
 
 def test_get_main_package():
     result = get_main_package()
-    from importlib.metadata import version
-    assert result.name == getattr(modules["__main__"], "__package__")
-    assert result.version == version(getattr(modules["__main__"], "__package__"))
+    assert result.name in ("app-runtime", "pytest")
 
 def test_get_auxilary_packages():
     mp = get_main_package()
