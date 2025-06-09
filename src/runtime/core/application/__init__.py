@@ -7,7 +7,7 @@ from importlib.metadata import Distribution, distributions, distribution
 from runtime.core.locking.lock_exception import LockException
 from runtime.core.application.single_instance_exception import SingleInstanceException
 from runtime.core.locking import lock_handle
-from runtime.core.user import is_elevated
+from runtime.core.user import is_elevated, get_home
 
 MAIN_MODULE = sys.modules["__main__"]
 SINGLE_INSTANCE_FILENAME = "singleinstance"
@@ -75,14 +75,16 @@ def get_installalled_apps_path(elevated: bool = IS_ELEVATED) -> str: # pragma: n
                           getenv("ProgramW6432")):
 
                 return path.abspath(result)
-        elif path.isdir("/usr/local/bin"):
-            return "/usr/local/bin"
+        elif sys.platform == "linux":
+            if path.isdir("/usr/local/bin"):
+                return "/usr/local/bin"
     else:
         if sys.platform == "win32":
             if result := getenv("LocalAppData"):
                 return path.abspath(path.join(result, "Programs"))
-        elif path.isdir("~/.local"):
-            return "~/.local"
+        elif sys.platform == "linux":
+            if ( home := get_home() ) and ( local := path.join(home, ".local") ) and path.isdir(local):
+                return local
 
     raise FileNotFoundError
 
