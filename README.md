@@ -1,0 +1,5 @@
+[![Test](https://github.com/apmadsen/milieu/actions/workflows/python-test.yml/badge.svg)](https://github.com/apmadsen/milieu/actions/workflows/python-test.yml)
+[![Coverage](https://github.com/apmadsen/milieu/actions/workflows/python-test-coverage.yml/badge.svg)](https://github.com/apmadsen/milieu/actions/workflows/python-test-coverage.yml)
+![Stable Version](https://img.shields.io/pypi/v/milieu?label=stable&sort=semver&color=blue)
+![Pre-release Version](https://img.shields.io/github/v/release/apmadsen/milieu?label=pre-release&include_prereleases&sort=semver&color=blue)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/milieu)
