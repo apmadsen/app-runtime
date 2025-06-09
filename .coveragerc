@@ -14,7 +14,3 @@ exclude_also =
     raise NotImplementedError
     if __name__ == .__main__.:
 
-
-# [run]
-# source = src
-# branch = True

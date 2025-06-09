@@ -1,32 +1,27 @@
 # pyright: basic
 from os import path
+from pytest import raises as assert_raises, fixture
 
-from tests.testbase import TestBase
+from runtime.objects.lifetime import Finalizable, FinalizedError
 
-from milieu.objects.lifetime import Finalizable, FinalizedError
 
-class TestFinalized(TestBase):
+def test_finalizable():
+    class Test(Finalizable):
+        _is_finalized = False
 
-    def test_finalizable(self):
-        class Test(Finalizable):
-            _is_finalized = False
+        def __finalize__(self) -> None:
+            self._is_finalized = True
 
-            def __finalize__(self) -> None:
-                self._is_finalized = True
+    t = Test()
 
-        t = Test()
+    assert not t.finalized
+    assert not t._is_finalized
 
-        self.assertFalse(t.finalized)
-        self.assertFalse(t._is_finalized)
+    t.finalize()
 
+    assert t.finalized
+    assert t._is_finalized
+
+    with assert_raises(FinalizedError):
         t.finalize()
-
-        self.assertTrue(t.finalized)
-        self.assertTrue(t._is_finalized)
-
-        self.assertRaises(FinalizedError, t.finalize)
-
-    def tearDown(self):
-        pass
-
 

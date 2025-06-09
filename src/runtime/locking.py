@@ -1,9 +1,10 @@
 
-from milieu.internal.app.locking.lock_exception import LockException
-from milieu.internal.app.locking import lock_file, lock_handle
+from runtime.core.locking.lock_exception import LockException
+from runtime.core.locking import lock_file, lock_handle, Handle
 
 __all__ = [
    'LockException',
-    'lock_file',
-    'lock_handle',
+   'Handle',
+   'lock_file',
+   'lock_handle',
 ]

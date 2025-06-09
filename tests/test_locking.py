@@ -1,85 +1,93 @@
 # pyright: basic
-from os import path, remove
+from os import path, remove, makedirs
 from typing import cast
 from io import IOBase
-from sys import platform
+from pytest import raises as assert_raises, fixture
 
-from milieu.internal.app.locking import get_shared_lock_path
-from milieu.internal.app.locking.handle import Handle
-from milieu.internal.app.locking.log import log
-from milieu.locking import LockException, lock_handle, lock_file
-from milieu.objects.lifetime import FinalizedError
+from runtime.core.locking import get_shared_lock_path
+from runtime.core.locking.handle import Handle
+from runtime.locking import LockException, lock_handle, lock_file
+from runtime.objects.lifetime import FinalizedError
 
-from tests.testbase import TestBase
+def test_handle():
+    if not path.isdir("tests/testdata"):
+        makedirs("tests/testdata")
 
-class TestLocking(TestBase):
-    def test_handle(self):
-        log.addHandler(self.test_log_handler)
-        filename = path.join(self._base_dir, f"{self.id()}.lock")
-        file = open(filename, "w")
-        file.write("test")
-        pos = file.tell()
-        continuation_hit = []
+    filename = path.join("tests", "testdata", f"{__name__}.lock")
+    file = open(filename, "w")
+    file.write("test")
+    pos = file.tell()
+    continuation_hit = []
 
-        def fn_continuation(acquired: bool, handle: IOBase, filename: str):
-            continuation_hit.append(int(acquired))
+    def fn_continuation(acquired: bool, handle: IOBase, filename: str):
+        continuation_hit.append(int(acquired))
 
-        try:
-            handle1 = Handle(file, filename, self.id(), continuation = fn_continuation)
-            handle2 = Handle(file, filename, continuation = fn_continuation)
+    try:
+        handle1 = Handle(file, filename, __name__, continuation = fn_continuation)
+        handle2 = Handle(file, filename, continuation = fn_continuation)
 
-            self.assertEqual(handle1.name, self.id())
+        assert handle1.name == __name__
 
-            with handle1:
-                self.assertEqual(file.tell(), pos)
-                self.assertRaises(LockException, handle2.acquire)
+        with handle1:
+            assert file.tell() == pos
+            with assert_raises(LockException):
+                handle2.acquire()
 
-            self.assertIn(1, continuation_hit)
-            self.assertIn(0, continuation_hit)
-            self.assertRaises(FinalizedError, handle1.acquire)
-            self.assertRaises(FinalizedError, handle1.release)
+        assert 1 in continuation_hit
+        assert 0 in continuation_hit
 
-            self.assertTrue(handle1.finalized)
-            self.assertFalse(handle2.finalized)
-            self.assertTrue(file.closed)
+        with assert_raises(FinalizedError):
+            handle1.acquire()
+        with assert_raises(FinalizedError):
+            handle1.release()
 
-        finally:
-            file.close()
+        assert handle1.finalized
+        assert not handle2.finalized
+        assert file.closed
+
+    finally:
+        file.close()
 
 
-    def test_lock_file(self):
-        log.addHandler(self.test_log_handler)
-        filename = path.join(self._base_dir, f"{self.id()}.lock")
-        file = open(filename, "w")
+def test_lock_file():
+    if not path.isdir("tests/testdata"):
+        makedirs("tests/testdata")
 
-        try:
-            handle1 = lock_file(filename)
-            handle2 = Handle(file, filename)
+    filename = path.join("tests", "testdata", f"{__name__}.lock")
+    file = open(filename, "w")
 
-            with handle1:
-                self.assertRaises(LockException, handle2.acquire)
+    try:
+        handle1 = lock_file(filename)
+        handle2 = Handle(file, filename)
 
-            self.assertFalse(file.closed) # lock_file doesn't close file
-        finally:
-            file.close()
+        with handle1:
+            with assert_raises(LockException):
+                handle2.acquire()
 
-    def test_lock_handle(self):
-        log.addHandler(self.test_log_handler)
-        name = self.id()
-        file_path = get_shared_lock_path(name)
+        assert not file.closed # lock_file doesn't close file
+    finally:
+        file.close()
 
-        if path.isfile(file_path):
-            remove(file_path)
+def test_lock_handle():
+    name = __name__
+    file_path = get_shared_lock_path(name)
 
-        handle = cast(Handle, lock_handle(name))
-        self.assertEqual(path.abspath(handle.filename), path.abspath(file_path))
+    if path.isfile(file_path):
+        remove(file_path)
 
-        try:
-            self.assertRaises(FileExistsError, lock_handle, name)
-        finally:
-            handle.finalize()
+    handle = cast(Handle, lock_handle(name))
+    handle.acquire()
+    assert path.abspath(handle.filename) == path.abspath(file_path)
 
-        self.assertTrue(handle.finalized)
+    try:
+        with assert_raises(FileExistsError):
+            lock_handle(name)
+    finally:
+        handle.release()
+        handle.finalize()
 
-    def tearDown(self):
-        pass
+    assert handle.finalized
+
+
+    handle2 = cast(Handle, lock_handle(name))
+    handle2.finalize()

@@ -1,7 +1,7 @@
 [project]
 name = "app-runtime"
 dynamic = ["version"]
-description = "Provides methods to handle the context of the application including getting user and application info."
+description = "Provides tools for handling the context of a Python application, including getting system, user and application info."
 keywords = ["windows", "linux"]
 readme = "README.md"
 authors = [
