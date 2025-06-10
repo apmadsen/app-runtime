@@ -66,7 +66,7 @@ class Handle(Finalizable):
 
             self.__acquired = True
 
-        except:
+        except: # pragma: no cover
             if self.__continuation:
                 log.debug(f"Executing continuation on {self.__filename}")
                 self.__continuation(False, self, self.__handle)
@@ -96,7 +96,7 @@ class Handle(Finalizable):
             self.__handle.close()
             self.__handle = None # pyright: ignore[reportAttributeAccessIssue]
 
-            if self.__continuation:
+            if self.__continuation: # pragma: no cover
                 log.debug(f"Executing continuation on {self.__filename}")
                 self.__continuation(was_acquired, self, self.__handle)
 
