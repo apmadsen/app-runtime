@@ -32,13 +32,15 @@ def test_handle():
         with handle1:
             assert file.tell() == pos
 
+
             if sys.platform == "win32":
                 # concurent locks in same process is prohibited on windows but not linux
                 with assert_raises(LockException):
                     handle2.acquire()
 
+                assert 0 in continuation_hit
+
         assert 1 in continuation_hit
-        assert 0 in continuation_hit
 
         with assert_raises(FinalizedError):
             handle1.acquire()

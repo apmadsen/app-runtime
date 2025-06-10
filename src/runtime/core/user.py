@@ -7,7 +7,7 @@ from importlib import import_module
 
 from runtime.core.compat import os, grp
 
-if sys.platform == "win32":
+if sys.platform == "win32": # pragma: no cover
     pass
 else:
     os = import_module("os")
