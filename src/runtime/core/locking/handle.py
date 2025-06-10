@@ -1,3 +1,4 @@
+from __future__ import annotations
 import sys
 from io import IOBase
 from typing import Any, Callable
@@ -25,7 +26,7 @@ class Handle(Finalizable):
         fp: IOBase,
         filename: str,
         name: str | None = None,
-        continuation: Callable[[bool, IOBase, str], None] | None = None
+        continuation: Callable[[bool, Handle, IOBase], None] | None = None
     ):
         super().__init__()
         self.__name = name
@@ -43,6 +44,11 @@ class Handle(Finalizable):
     def filename(self) -> str:
         """The filename of the handle."""
         return self.__filename
+
+    @property
+    def file(self) -> IOBase: # pragma: no cover
+        """The underlying file handle."""
+        return self.__handle
 
     def acquire(self) -> None:
         """Acquires the lock."""
@@ -63,7 +69,7 @@ class Handle(Finalizable):
         except:
             if self.__continuation:
                 log.debug(f"Executing continuation on {self.__filename}")
-                self.__continuation(False, self.__handle, self.__filename)
+                self.__continuation(False, self, self.__handle)
 
             raise
         finally:
@@ -92,7 +98,7 @@ class Handle(Finalizable):
 
             if self.__continuation:
                 log.debug(f"Executing continuation on {self.__filename}")
-                self.__continuation(was_acquired, self.__handle, self.__filename)
+                self.__continuation(was_acquired, self, self.__handle)
 
     def __finalize__(self):
         self.release()

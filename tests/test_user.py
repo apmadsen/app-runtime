@@ -21,7 +21,7 @@ def test_get_roles():
 
 def test_is_elevated():
     result = is_elevated()
-    assert not result
+    # assert not result # cannot determine expected result in github test dev, so this check cannot safely be done
     assert is_admin == is_elevated
 
 def test_is_in_role():

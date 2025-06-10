@@ -76,8 +76,16 @@ def test_lock_handle():
         remove(file_path)
 
     handle = cast(Handle, lock_handle(name))
-    handle.acquire()
     assert path.abspath(handle.filename) == path.abspath(file_path)
+
+    # # the shared lock path might not work in github test dev,
+    # handle.file.close()
+
+    # file_path = path.join("tests", "testdata", f"{__name__}.lock")
+    # file = open(file_path, 'w')
+    # setattr(handle, "_Handle__filename", file_path)
+
+    handle.acquire()
 
     try:
         with assert_raises(FileExistsError):

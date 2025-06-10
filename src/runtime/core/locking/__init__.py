@@ -1,5 +1,5 @@
 import sys
-from os import getenv, path, remove
+from os import getenv, path, remove, makedirs
 from typing import ContextManager, Any
 from io import IOBase
 from platformdirs import site_data_dir, user_data_dir
@@ -17,19 +17,24 @@ def lock_handle(name: str) -> ContextManager[Any]:
     """Returns a named Handle object in the common system path for shared locks."""
     file_path = get_shared_lock_path(name)
 
+    if ( dir := path.dirname(file_path) ) and not path.isdir(dir): # pragma: no cover
+        log.info(f"Creating nonexisting dir {dir}...")
+        makedirs(dir)
+
     if path.exists(file_path):
         log.error(f"Cannot create a handle for {file_path} because it already exists")
         raise FileExistsError(file_path)
 
-    def cleanup(acquired: bool, handle: IOBase, filename: str):
+    def cleanup(acquired: bool, handle: Handle, fp: IOBase):
         if acquired:
-            log.debug(f"Cleaning up handle by disposing of {filename}")
-            remove(filename)
+            log.debug(f"Cleaning up handle by disposing of {handle.filename}")
+            remove(handle.filename)
 
     return Handle(open(file_path, 'w'), file_path, name, continuation = cleanup)
 
 def get_shared_lock_path(name: str) -> str:
     """Returns the common system path for locks."""
+
     command = path.basename(sys.argv[0].split(" ", maxsplit = 1)[0])
     site_path = site_data_dir()
     user_path = user_data_dir()

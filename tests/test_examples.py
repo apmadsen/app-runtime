@@ -1,4 +1,4 @@
-
+# pyright: basic
 
 def test_example_1():
     from runtime.application import (
@@ -15,7 +15,6 @@ def test_example_1():
     def output(line: str):
         if interactive:
             print(line)
-
 
     with single_instance():
         try:

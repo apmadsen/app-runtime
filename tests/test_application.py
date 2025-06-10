@@ -1,6 +1,6 @@
 # pyright: basic
 from os import path, remove
-from sys import modules, executable
+import sys
 from typing import cast
 from pytest import raises as assert_raises, fixture
 from importlib.metadata import version
@@ -48,17 +48,21 @@ def test_is_python_shell():
 
 def test_get_application_path():
     result = get_application_path()
-    assert result == getattr(modules["__main__"], "__file__")
+    assert result == getattr(sys.modules["__main__"], "__file__")
 
 def test_get_installed_apps_path():
     result = get_installalled_apps_path(False)
-    assert path.isdir(result)
+    if sys.platform == "win32":
+        assert path.isdir(path.dirname(result)) # check parent dir as the nested 'Programs' folder might not exist on windows servers
+    else:
+        assert path.isdir(result)
+
     result = get_installalled_apps_path(True)
-    assert path.isdir(result)
+    assert path.isdir(result) # check parent dir as the nested 'Programs' folder might not exist on windows servers
 
 def test_get_main_module():
     result = get_main_module()
-    assert result == modules["__main__"]
+    assert result == sys.modules["__main__"]
 
 def test_get_main_package():
     result = get_main_package()
