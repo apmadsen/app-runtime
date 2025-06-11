@@ -7,3 +7,16 @@
 ## hook_terminate() -> _None_
 
 Hooks up interrupt and terminate handlers, which throws a `TerminateException` when signaled.
+
+### Example:
+
+```python
+from runtime.application import hook_terminate, TerminateException
+
+try:
+    hook_terminate()
+
+    ...
+except TerminateException:
+    ... # cleanup tasks
+```

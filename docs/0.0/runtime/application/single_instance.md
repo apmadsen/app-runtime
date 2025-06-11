@@ -9,3 +9,16 @@
 Returns a SingleInstance context, which ensures that application is only running in one instance.
 
 Internally a locking.Handle is created and returned.
+
+### Example:
+
+```python
+from runtime.application import single_instance, SingleInstanceException
+
+try:
+    with single_instance():
+        ...
+
+except SingleInstanceException:
+    print("Another instance of this application is already running!")
+```

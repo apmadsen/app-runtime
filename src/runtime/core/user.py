@@ -22,7 +22,7 @@ def _get_user_id() -> int | None: # pragma: no cover
 def _get_username() -> str: # pragma: no cover
     for method in ( getlogin,
                     getuser,
-                    lambda: getenv('username') ):
+                    lambda: getenv('USERNAME') ):
         try:
             if result := method():
                 return result
@@ -35,7 +35,7 @@ def _get_user_home() -> str: # pragma: no cover
     for method in ( lambda: path.expanduser("~"),
                     lambda: getenv('USERPROFILE') ):
         try:
-            if result := method():
+            if ( result := method() ) and path.isdir(result):
                 return result
         except:
             pass

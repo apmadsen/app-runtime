@@ -18,6 +18,7 @@ else:
 
 class Handle(Finalizable):
     """The Handle class represents a filesystem handle to a file used for locking purposes.
+    It's not intended for use directly, so use the lock_file() and lock_handle() functions instead.
     """
     __slots__ = [ "__name", "__filename", "__handle", "__continuation", "__acquired" ]
 

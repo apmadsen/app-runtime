@@ -76,6 +76,12 @@ def test_lock_file():
     finally:
         file.close()
 
+def test_get_shared_lock_path():
+    result = get_shared_lock_path("test", False)
+    assert result
+    result_elevated = get_shared_lock_path("test", True)
+    assert result_elevated
+
 def test_lock_handle():
     name = __name__
     file_path = get_shared_lock_path(name)

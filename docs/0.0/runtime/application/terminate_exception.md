@@ -9,3 +9,16 @@
 The `TerminateException` exception is raised when application receives a terminate or interrupt signal.
 
 The hook_terminate() functions is required to set everything up.
+
+### Example:
+
+```python
+from runtime.application import hook_terminate, TerminateException
+
+try:
+    hook_terminate()
+
+    ...
+except TerminateException:
+    ... # cleanup tasks
+```

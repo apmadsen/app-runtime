@@ -11,9 +11,8 @@ from runtime.core.locking.handle import Handle
 
 from runtime.locking import LockException
 from runtime.application import (
-    single_instance, is_interactive, is_python_shell,
-    get_application_path, get_main_module, get_main_package,
-    get_installalled_apps_path, get_auxilary_packages
+    single_instance, is_interactive, is_python_shell, get_main_module_name,
+    get_application_path, get_main_module, get_installalled_apps_path, get_all_packages
 )
 
 def test_single_instance():
@@ -52,6 +51,7 @@ def test_get_application_path():
 
 def test_get_installed_apps_path():
     result = get_installalled_apps_path(False)
+
     if sys.platform == "win32":
         assert path.isdir(path.dirname(result)) # check parent dir as the nested 'Programs' folder might not exist on windows servers
     else:
@@ -64,12 +64,11 @@ def test_get_main_module():
     result = get_main_module()
     assert result == sys.modules["__main__"]
 
-def test_get_main_package():
-    result = get_main_package()
-    assert result.name in ("app-runtime", "pytest")
+def test_get_main_module_name():
+    result = get_main_module_name()
+    assert result # result may equal __main__ when tested
 
-def test_get_auxilary_packages():
-    mp = get_main_package()
-    result = get_auxilary_packages()
-    assert mp.name not in result
+def test_get_all_packages():
+    result = get_all_packages()
+    assert result
 

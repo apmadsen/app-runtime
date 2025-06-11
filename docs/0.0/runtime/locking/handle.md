@@ -6,7 +6,7 @@
 
 # Handle class : Finalizable
 
-The Handle class represents a filesystem handle to a file used for locking purposes. It's intended for internal use only.
+The Handle class represents a filesystem handle to a file used for locking purposes. It's intended for internal use only and the suggested implementation is `lock_handle()`.
 
 ## Properties
 
@@ -27,3 +27,24 @@ Acquires the lock.
 ### release() -> _None_
 
 Releases the lock.
+
+
+## Example:
+
+```python
+from io import IOBase
+from os import remove
+from runtime.locking import Handle, LockException
+
+def fn_continuation(acquired: bool, handle: Handle, fp: IOBase):
+    remove(handle.filename)
+
+try:
+    filename = "tests/lockfile.lock"
+    file = open(filename, "w")
+    with Handle(file, filename, "Lock", continuation = fn_continuation):
+        ...
+
+except LockException:
+    ... # a handle exists and is already locked
+```

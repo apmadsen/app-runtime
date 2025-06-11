@@ -13,8 +13,8 @@
 ## Functions
 
 ### [get_main_module](get_main_module.md)
-### [get_main_package](get_main_package.md)
-### [get_auxilary_packages](get_auxilary_packages.md)
+### [get_main_module_name](get_main_module_name.md)
+### [get_all_packages](get_all_packages.md)
 ### [get_application_path](get_application_path.md)
 ### [get_installalled_apps_path](get_installalled_apps_path.md)
 ### [is_interactive](is_interactive.md)

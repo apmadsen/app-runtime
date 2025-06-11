@@ -1,10 +1,10 @@
 import sys
-from os import getenv, path, remove, makedirs
+from os import path, remove, makedirs
 from typing import ContextManager, Any
 from io import IOBase
-from platformdirs import site_data_dir, user_data_dir
+from platformdirs import site_runtime_dir, user_runtime_dir
 
-from runtime.core.user import is_elevated
+from runtime.core.user import USER_ELEVATED
 from runtime.core.locking.handle import Handle
 from runtime.core.locking.log import log
 
@@ -32,22 +32,14 @@ def lock_handle(name: str) -> ContextManager[Any]:
 
     return Handle(open(file_path, 'w'), file_path, name, continuation = cleanup)
 
-def get_shared_lock_path(name: str) -> str:
+def get_shared_lock_path(name: str, elevated: bool = USER_ELEVATED) -> str:
     """Returns the common system path for locks."""
 
     command = path.basename(sys.argv[0].split(" ", maxsplit = 1)[0])
-    site_path = site_data_dir()
-    user_path = user_data_dir()
-    elevated = is_elevated()
 
-    if sys.platform == "linux" and elevated: # pragma: no cover
-        file_path = f"/var/run/{command}_{name}.pid"
-    elif sys.platform == "win32" and elevated: # pragma: no cover
-        file_path = path.join(site_path, f"{command}_{name}.lock")
-    elif sys.platform == "win32": # pragma: no cover
-        appdata_path = getenv("APPDATA", user_path)
-        file_path = path.join(appdata_path, f"{command}_{name}.lock")
-    else: # pragma: no cover
-        file_path = path.join(user_path, f"{command}_{name}.lock")
+    if elevated:
+        file_path = path.join(site_runtime_dir(), f"{command}_{name}.lock")
+    else:
+        file_path = path.join(user_runtime_dir(), f"{command}_{name}.lock")
 
     return file_path

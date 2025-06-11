@@ -6,4 +6,4 @@
 
 ## get_application_path() -> _str_
 
-Returns the path of the main module.
+Returns the path of the main module. If running in a Python shell, the path of the executable is returned.

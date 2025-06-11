@@ -7,3 +7,15 @@
 ## lock_handle(name: _str_) -> _ContextManager[Any]_
 
 Returns a named Handle object in the common system path for shared locks.
+
+### Example:
+
+```python
+from runtime.locking import lock_handle, LockException
+
+try:
+    with lock_handle("lock"):
+        ...
+except LockException:
+    ... # a handle exists and is already locked
+```

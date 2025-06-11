@@ -4,7 +4,7 @@
    [application](/docs/0.0/runtime/application/module.md) >
     get_installalled_apps_path
 
-## get_installalled_apps_path(elevated: _bool = IS_ELEVATED_) -> _str_
+## get_installalled_apps_path(elevated: _bool_ = _USER_ELEVATED_) -> _str_
 
 Gets the default path for installed user applications.
 

@@ -1,5 +1,5 @@
 from runtime.core.application import (
-    get_main_module, get_main_package, get_auxilary_packages,
+    get_main_module, get_main_module_name, get_all_packages,
     get_installalled_apps_path, get_application_path,
     is_interactive, is_python_shell, single_instance,
 )
@@ -12,14 +12,13 @@ __all__ = [
     'TerminateException',
     'SingleInstanceException',
     'get_main_module',
-    'get_main_package',
-    'get_auxilary_packages',
+    'get_main_module_name',
+    'get_all_packages',
     'get_application_path',
     'get_installalled_apps_path',
     'is_interactive',
     'is_python_shell',
     'single_instance',
-    'SingleInstanceException',
     'hook_terminate',
     'prevent_pythonpath',
 ]

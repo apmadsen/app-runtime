@@ -1,6 +1,4 @@
 # pyright: basic
-from os import path, remove
-from typing import cast
 from pytest import raises as assert_raises, fixture
 
 from runtime.modules import load_module

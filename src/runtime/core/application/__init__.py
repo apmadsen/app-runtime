@@ -2,86 +2,89 @@ import sys
 from os import isatty, path, getenv
 from types import ModuleType
 from typing import ContextManager, Any
-from importlib.metadata import Distribution, distributions, distribution
+from platformdirs import user_data_dir
+from importlib.metadata import Distribution, distributions
 
 from runtime.core.locking.lock_exception import LockException
 from runtime.core.application.single_instance_exception import SingleInstanceException
 from runtime.core.locking import lock_handle
-from runtime.core.user import is_elevated, get_home
+from runtime.core.user import get_home, USER_ELEVATED
 
 MAIN_MODULE = sys.modules["__main__"]
 SINGLE_INSTANCE_FILENAME = "singleinstance"
-IS_ELEVATED = is_elevated()
 
 def get_main_module() -> ModuleType:
-    """Returns the main module.
-    """
+    """Returns the main module."""
     return MAIN_MODULE
 
-def get_main_package() -> Distribution:
-    """Returns the main module package.
-    """
-    return distribution(getattr(MAIN_MODULE, "__package__"))
+def get_main_module_name() -> str:
+    """Returns the real name of the main module."""
+    module_name = getattr(MAIN_MODULE, "__name__")
 
-def get_auxilary_packages() -> dict[str, Distribution]:
-    """Returns all installed packages (except for main package).
-    """
-    mp = getattr(MAIN_MODULE, "__package__") or get_main_package().name
+    if module_name == "__main__" and hasattr(MAIN_MODULE, "__package__"):
+        if pkg := getattr(MAIN_MODULE, "__package__"):
+            return pkg
+
+    if module_name == "__main__" and hasattr(MAIN_MODULE, "__file__"): # pragma: no cover
+        file_path = getattr(MAIN_MODULE, "__file__")
+        file_name = path.splitext(path.basename(file_path))[0]
+        if file_name.lower() != "__main__":
+            return file_name
+
+    return module_name # pragma: no cover
+
+def get_all_packages() -> dict[str, Distribution]:
+    """Returns all installed packages."""
     return {
         dist.name: dist
         for dist in distributions()
-        if dist.name != mp
     }
 
 def get_application_path() -> str:
-    """Returns the path of the main module.
-
-    Raises:
-        Exception: An exception is raised, if application is running in a python shell.
-    """
+    """Returns the path of the main module. If running in a Python shell, the path of the executable is returned."""
     if hasattr(MAIN_MODULE, "__file__"):
         return getattr(MAIN_MODULE, "__file__")
-    else:
-        raise Exception("Unable to get application path when running in a python shell") # pragma: no cover
+    else: # pragma: no cover
+        return sys.executable
 
 def is_interactive() -> bool:
-    """Indicates if application is running inside a terminal or not.
-    """
+    """Indicates if application is running inside a terminal or not."""
     try:
         return isatty(sys.stdout.fileno())
     except: # pragma: no cover
         return False
 
 def is_python_shell() -> bool:
-    """Indicates if application is running inside a python shell or not.
-    """
+    """Indicates if application is running inside a python shell or not."""
     return not hasattr(MAIN_MODULE, "__file__")
 
 def single_instance() -> ContextManager[Any]:
-    """
-    Returns a SingleInstance context, which ensures that application is only running in one instance.
-    """
+    """Returns a SingleInstance context, which ensures that application is only running in one instance."""
     try:
         return lock_handle(SINGLE_INSTANCE_FILENAME)
     except LockException: # pragma: no cover
         raise SingleInstanceException
 
-def get_installalled_apps_path(elevated: bool = IS_ELEVATED) -> str: # pragma: no cover
-    """Gets the default path for installed user applications."""
+def get_installalled_apps_path(elevated: bool = USER_ELEVATED) -> str: # pragma: no cover
+    """Gets the default path for installed user applications.
+
+    Args:
+        elevated (bool, optional): Specifies it user is running under elevated privileges (is admin/sudo). Defaults to USER_ELEVATED.
+    """
     if elevated:
         if sys.platform == "win32":
-            if result := (getenv("ProgramFiles") or
-                          getenv("ProgramFiles(x86)") or
-                          getenv("ProgramW6432")):
+            if result := (getenv("PROGRAMFILES") or
+                          getenv("PROGRAMFILES(X86)") or
+                          getenv("PROGRAMW6432")):
 
                 return path.abspath(result)
         elif sys.platform == "linux":
-            if path.isdir("/usr/local/bin"):
-                return "/usr/local/bin"
+            for result in ("/usr/local/bin", "/usr/local/sbin"):
+                if path.isdir(result):
+                    return "/usr/local/bin"
     else:
         if sys.platform == "win32":
-            if result := getenv("LocalAppData"):
-                return path.abspath(path.join(result, "Programs"))
+            return path.abspath(path.join(user_data_dir(), "Programs"))
         elif sys.platform == "linux":
             if ( home := get_home() ) and ( local := path.join(home, ".local") ) and path.isdir(local):
                 return local
