@@ -86,8 +86,8 @@ def get_installalled_apps_path(elevated: bool = USER_ELEVATED) -> str: # pragma:
         if sys.platform == "win32":
             return path.abspath(path.join(user_data_dir(), "Programs"))
         elif sys.platform == "linux":
-            if ( home := get_home() ) and ( local := path.join(home, ".local") ) and path.isdir(local):
-                return local
+            if ( home := get_home() ):
+                return path.join(home, ".local")
 
     raise FileNotFoundError
 

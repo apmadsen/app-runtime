@@ -55,7 +55,7 @@ def test_get_installed_apps_path():
     if sys.platform == "win32":
         assert path.isdir(path.dirname(result)) # check parent dir as the nested 'Programs' folder might not exist on windows servers
     else:
-        assert path.isdir(result)
+        assert path.isdir(path.dirname(result)) # check parent dir as the nested '.local' folder might not exist on linux servers
 
     result = get_installalled_apps_path(True)
     assert path.isdir(result) # check parent dir as the nested 'Programs' folder might not exist on windows servers
