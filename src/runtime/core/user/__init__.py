@@ -6,6 +6,7 @@ from subprocess import run, DEVNULL, STDOUT , check_output
 from importlib import import_module
 
 from runtime.core.compat import os, grp
+from runtime.core.user.log import log
 
 if sys.platform == "win32": # pragma: no cover
     pass
@@ -29,6 +30,7 @@ def _get_username() -> str: # pragma: no cover
         except:
             pass
 
+    log.error("Unable to get username from system")
     raise Exception("Unable to get username")
 
 def _get_user_home() -> str: # pragma: no cover
@@ -40,6 +42,7 @@ def _get_user_home() -> str: # pragma: no cover
         except:
             pass
 
+    log.error("Unable to get user home folder from system")
     raise Exception("Unable to get username")
 
 def _get_user_roles() -> frozenset[str]: # pragma: no cover
@@ -52,7 +55,8 @@ def _get_user_roles() -> frozenset[str]: # pragma: no cover
                 if len(g) > 1
                  and g[0] == "*"
             ])
-        except:
+        except Exception as ex:
+            log.error("Unable to get user roles from system", exc_info = ex)
             raise
     else:
         try:
@@ -62,19 +66,22 @@ def _get_user_roles() -> frozenset[str]: # pragma: no cover
                 if USER_NAME in g.gr_mem
                  or g.gr_gid == USER_ID
             ])
-        except:
+        except Exception as ex:
+            log.error("Unable to get user roles from system", exc_info = ex)
             raise
 
 def _get_is_elevated() -> bool: # pragma: no cover
     if sys.platform == "win32":
         try:
             return run("net session", stdout = DEVNULL, stderr=STDOUT).returncode == 0
-        except:
+        except Exception as ex:
+            log.error("Unable to detect if user is elevated. Assumption is that user is not elevated.", exc_info = ex)
             return False
     else:
         try:
             return USER_ID == 0
-        except:
+        except Exception as ex:
+            log.error("Unable to detect if user is elevated. Assumption is that user is not elevated.", exc_info = ex)
             return False
 
 USER_ID = _get_user_id()

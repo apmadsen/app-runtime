@@ -1,11 +1,12 @@
 import sys
-from os import isatty, path, getenv
+from os import isatty, path, getenv, makedirs
 from types import ModuleType
 from typing import ContextManager, Any
 from platformdirs import user_data_dir
 from importlib.metadata import Distribution, distributions
 
 from runtime.core.locking.lock_exception import LockException
+from runtime.core.application.log import log
 from runtime.core.application.single_instance_exception import SingleInstanceException
 from runtime.core.locking import lock_handle
 from runtime.core.user import get_home, USER_ELEVATED
@@ -62,13 +63,15 @@ def single_instance() -> ContextManager[Any]:
     """Returns a SingleInstance context, which ensures that application is only running in one instance."""
     try:
         return lock_handle(SINGLE_INSTANCE_FILENAME)
-    except LockException: # pragma: no cover
-        raise SingleInstanceException
+    except LockException as ex: # pragma: no cover
+        log.error("Another instance of application is apparently running")
+        raise SingleInstanceException from ex
 
-def get_installalled_apps_path(elevated: bool = USER_ELEVATED) -> str: # pragma: no cover
+def get_installalled_apps_path(*, ensure_exists: bool = False, elevated: bool = USER_ELEVATED) -> str: # pragma: no cover
     """Gets the default path for installed user applications.
 
     Args:
+        ensure_exists (bool, optional): Specifies whether or not creation of nonexistent folder should be attempted. Applies to elevated user context only.
         elevated (bool, optional): Specifies it user is running under elevated privileges (is admin/sudo). Defaults to USER_ELEVATED.
     """
     if elevated:
@@ -82,12 +85,23 @@ def get_installalled_apps_path(elevated: bool = USER_ELEVATED) -> str: # pragma:
             for result in ("/usr/local/bin", "/usr/local/sbin"):
                 if path.isdir(result):
                     return "/usr/local/bin"
+
+        log.error(f"Unable to locate a path for installed apps ({sys.platform})")
     else:
         if sys.platform == "win32":
-            return path.abspath(path.join(user_data_dir(), "Programs"))
+            result = path.abspath(path.join(user_data_dir(), "Programs"))
+            if result and ensure_exists and not path.isdir(result):
+                log.info(f"Creating nonexisting dir {result}...")
+                makedirs(result)
+            return result
         elif sys.platform == "linux":
             if ( home := get_home() ):
-                return path.join(home, ".local")
+                result = path.join(home, ".local")
+                if result and ensure_exists and not path.isdir(result):
+                    log.info(f"Creating nonexisting dir {result}...")
+                    makedirs(result)
+                return result
 
+        log.error(f"Unable to locate a path for installed apps ({sys.platform})")
     raise FileNotFoundError
 

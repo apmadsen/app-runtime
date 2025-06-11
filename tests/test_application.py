@@ -50,14 +50,18 @@ def test_get_application_path():
     assert result == getattr(sys.modules["__main__"], "__file__")
 
 def test_get_installed_apps_path():
-    result = get_installalled_apps_path(False)
+    result = get_installalled_apps_path(elevated=False)
 
     if sys.platform == "win32":
         assert path.isdir(path.dirname(result)) # check parent dir as the nested 'Programs' folder might not exist on windows servers
     else:
         assert path.isdir(path.dirname(result)) # check parent dir as the nested '.local' folder might not exist on linux servers
 
-    result = get_installalled_apps_path(True)
+
+    result = get_installalled_apps_path(ensure_exists=True, elevated=False)
+    assert path.isdir(result)
+
+    result = get_installalled_apps_path(elevated=True)
     assert path.isdir(result) # check parent dir as the nested 'Programs' folder might not exist on windows servers
 
 def test_get_main_module():

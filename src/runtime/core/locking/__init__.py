@@ -21,7 +21,7 @@ def lock_handle(name: str) -> ContextManager[Any]:
         log.info(f"Creating nonexisting dir {dir}...")
         makedirs(dir)
 
-    if path.exists(file_path):
+    if path.isfile(file_path):
         log.error(f"Cannot create a handle for {file_path} because it already exists")
         raise FileExistsError(file_path)
 
@@ -32,8 +32,13 @@ def lock_handle(name: str) -> ContextManager[Any]:
 
     return Handle(open(file_path, 'w'), file_path, name, continuation = cleanup)
 
-def get_shared_lock_path(name: str, elevated: bool = USER_ELEVATED) -> str:
-    """Returns the common system path for locks."""
+def get_shared_lock_path(name: str, *, elevated: bool = USER_ELEVATED) -> str:
+    """Returns the common system path for locks.
+
+    Args:
+        name (str): The name of the lock.
+        elevated (bool, optional): Specifies it user is running under elevated privileges (is admin/sudo). Defaults to USER_ELEVATED.
+    """
 
     command = path.basename(sys.argv[0].split(" ", maxsplit = 1)[0])
 

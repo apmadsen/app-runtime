@@ -77,9 +77,9 @@ def test_lock_file():
         file.close()
 
 def test_get_shared_lock_path():
-    result = get_shared_lock_path("test", False)
+    result = get_shared_lock_path("test", elevated=False)
     assert result
-    result_elevated = get_shared_lock_path("test", True)
+    result_elevated = get_shared_lock_path("test", elevated=True)
     assert result_elevated
 
 def test_lock_handle():

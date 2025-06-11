@@ -67,7 +67,8 @@ class Handle(Finalizable):
 
             self.__acquired = True
 
-        except: # pragma: no cover
+        except Exception as ex: # pragma: no cover
+            log.error("An unexpected error occurred", exc_info = ex)
             if self.__continuation:
                 log.debug(f"Executing continuation on {self.__filename}")
                 self.__continuation(False, self, self.__handle)
@@ -92,7 +93,7 @@ class Handle(Finalizable):
                     self.__acquired = False
 
             except Exception as ex: # pragma: no cover
-                log.error(f"Unlocking {self.__filename} #{self.__handle.fileno()} failed: {ex}")
+                log.error(f"Unlocking {self.__filename} #{self.__handle.fileno()} failed", exc_info=ex)
 
             self.__handle.close()
             self.__handle = None # pyright: ignore[reportAttributeAccessIssue]
