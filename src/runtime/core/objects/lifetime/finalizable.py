@@ -11,7 +11,6 @@ class Finalizable(ABC):
     __slots__ = [ "__weakref__", "__finalizer", "__finalizing" ]
 
     def __new__(cls, *args: Any, **kwargs: Any):
-
         def fn_finalize():
             instance.__finalizing = True
             instance.__finalize__() # pyright: ignore[reportAbstractUsage]

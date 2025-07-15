@@ -5,7 +5,7 @@
     [lifetime](/docs/0.0/runtime/objects/lifetime/module.md) >
      Finalizable
 
-# Finalizable class : abc.ABC
+# Finalizable : abc.ABC
 
 Base class for implementation of the Finalizable pattern. When instances of a derived class are garbage collected, finalization takes place automatically.
 

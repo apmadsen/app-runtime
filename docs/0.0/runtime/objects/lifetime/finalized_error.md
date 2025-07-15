@@ -5,7 +5,7 @@
     [lifetime](/docs/0.0/runtime/objects/lifetime/module.md) >
      FinalizedError
 
-# FinalizedError class : BaseException
+# FinalizedError : BaseException
 
 The FinalizedError exception is raised when trying to finalize an already finalized object.
 

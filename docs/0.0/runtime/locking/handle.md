@@ -4,7 +4,7 @@
    [locking](/docs/0.0/runtime/locking/module.md) >
     Handle
 
-# Handle class : Finalizable
+# Handle : [Finalizable](../objects/lifetime/finalizable.md)
 
 The Handle class represents a filesystem handle to a file used for locking purposes. It's intended for internal use only and the suggested implementation is `lock_handle()`.
 

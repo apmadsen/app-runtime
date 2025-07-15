@@ -4,7 +4,7 @@
    [application](/docs/0.0/runtime/application/module.md) >
     TerminateException
 
-# TerminateException class : Exception
+# TerminateException : Exception
 
 The `TerminateException` exception is raised when application receives a terminate or interrupt signal.
 

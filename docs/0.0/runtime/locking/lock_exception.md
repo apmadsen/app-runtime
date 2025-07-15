@@ -4,6 +4,6 @@
    [locking](/docs/0.0/runtime/locking/module.md) >
     LockException
 
-# LockException class : Exception
+# LockException : Exception
 
 The `LockException` exception is raised when a handle is already locked.

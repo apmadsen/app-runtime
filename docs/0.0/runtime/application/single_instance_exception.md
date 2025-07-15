@@ -4,7 +4,7 @@
    [application](/docs/0.0/runtime/application/module.md) >
     SingleInstanceException
 
-# SingleInstanceException class : Exception
+# SingleInstanceException : Exception
 
 The `SingleInstanceException` exception is raised when another instance of the application is already running in the same user context.
 
