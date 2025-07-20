@@ -37,7 +37,7 @@ def test_example_2():
     from runtime.locking import lock_file, LockException
 
     try:
-        with lock_file("./lockfile.lock"):
+        with lock_file("tests/testdata/lockfile.lock"):
             ...
     except LockException:
         ... # file exists and is already locked

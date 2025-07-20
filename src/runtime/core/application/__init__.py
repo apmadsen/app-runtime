@@ -62,7 +62,7 @@ def is_python_shell() -> bool:
 def single_instance() -> ContextManager[Any]:
     """Returns a SingleInstance context, which ensures that application is only running in one instance."""
     try:
-        return lock_handle(SINGLE_INSTANCE_FILENAME)
+        return lock_handle(SINGLE_INSTANCE_FILENAME, True)
     except LockException as ex: # pragma: no cover
         log.error("Another instance of application is apparently running")
         raise SingleInstanceException from ex

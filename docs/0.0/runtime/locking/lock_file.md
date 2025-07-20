@@ -8,6 +8,8 @@
 
 Returns a Handle object for specified file_path.
 
+- file_path `str`: The path of the file to lock.
+
 ### Example:
 
 ```python

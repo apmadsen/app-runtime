@@ -9,19 +9,37 @@ from runtime.core.locking.handle import Handle
 from runtime.core.locking.log import log
 
 def lock_file(file_path: str) -> ContextManager[Any]:
-    """Returns a Handle object for specified file_path."""
+    """Returns a Handle object for specified file_path.
+
+    Args:
+        file_path (str): The path of the file to lock.
+
+    Returns:
+        ContextManager[Any]: Returns a context manager instance.
+    """
     log.debug(f"Creating a handle for {file_path}")
     return Handle(open(file_path, 'w'), file_path)
 
-def lock_handle(name: str) -> ContextManager[Any]:
-    """Returns a named Handle object in the common system path for shared locks."""
+def lock_handle(name: str, ignore_file_exists: bool = False) -> ContextManager[Any]:
+    """Returns a named Handle object in the common system path for shared locks.
+
+    Args:
+        name (str): The name of the lock.
+        ignore_file_exists (bool, optional): Specifies whether or not to check if file exists. Defaults to False.
+
+    Raises:
+        FileExistsError: If file already exists, a FileExistsError will be raised.
+
+    Returns:
+        ContextManager[Any]: Returns a context manager instance.
+    """
     file_path = get_shared_lock_path(name)
 
     if ( dir := path.dirname(file_path) ) and not path.isdir(dir): # pragma: no cover
         log.info(f"Creating nonexisting dir {dir}...")
         makedirs(dir)
 
-    if path.isfile(file_path):
+    if not ignore_file_exists and path.isfile(file_path):
         log.error(f"Cannot create a handle for {file_path} because it already exists")
         raise FileExistsError(file_path)
 
