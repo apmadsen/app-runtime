@@ -1,5 +1,5 @@
 # pyright: basic
-from os import path, remove
+from os import path, remove, makedirs
 
 def test_example_1():
     from runtime.application import (
@@ -34,7 +34,11 @@ def test_example_1():
 
 
 def test_example_2():
+    if not path.isdir("tests/testdata"):
+        makedirs("tests/testdata")
+
     from runtime.locking import lock_file, LockException
+
 
     try:
         with lock_file("tests/testdata/lockfile.lock"):
