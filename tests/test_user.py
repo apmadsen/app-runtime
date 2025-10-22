@@ -1,4 +1,5 @@
 # pyright: basic
+# ruff: noqa
 from os import path, remove
 from typing import cast
 from pytest import raises as assert_raises, fixture

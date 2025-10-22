@@ -1,4 +1,5 @@
 # pyright: basic
+# ruff: noqa
 from os import path, remove
 import sys
 from typing import cast

@@ -1,4 +1,5 @@
 # pyright: basic
+# ruff: noqa
 from os import path, remove, makedirs
 
 def test_example_1():
