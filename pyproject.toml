@@ -28,7 +28,7 @@ classifiers = [
     "Typing :: Typed"
 ]
 dependencies = [
-    "platformdirs >= 4.3, < 4.12",
+    "platformdirs >= 4.3, < 4.13",
 ]
 requires-python = ">=3.10"
 
