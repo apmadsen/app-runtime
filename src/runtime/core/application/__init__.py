@@ -52,7 +52,7 @@ def is_interactive() -> bool:
     """Indicates if application is running inside a terminal or not."""
     try:
         return isatty(sys.stdout.fileno())
-    except: # pragma: no cover
+    except: # pragma: no cover # noqa: E722
         return False
 
 def is_python_shell() -> bool:
